@@ -3,8 +3,6 @@ WasteClassifier.py
 """
 
 # Install dependencies
-pip uninstall fastai
-pip uninstall fastai2
 pip install fastai==2.5.3
 pip install Streamlit
 
