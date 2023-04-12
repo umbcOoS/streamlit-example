@@ -1,38 +1,50 @@
-from collections import namedtuple
-import altair as alt
-import math
-import pandas as pd
+"""
+WasteClassifier.py
+"""
+
+# Install dependencies
+!pip uninstall fastai
+!pip uninstall fastai2
+!pip install fastai==2.5.3
+!pip install Streamlit
+
+# Import libraries
+from fastai.vision.all import *
+from google.colab import files
+import cv2
+import matplotlib.pyplot as plt
+import zipfile
+import io
+import os
+from PIL import Image
 import streamlit as st
+import utils
 
-"""
-# Welcome to Streamlit!
+# Load model
+st.set_option('deprecation.showfileUploaderEncoding', False)
+st.title("Waste Classifier")
 
-Edit `/streamlit_app.py` to customize this app to your heart's desire :heart:
+@st.cache(allow_output_mutation=True)
+def load_model():
+    learn_loaded = load_learner('result-resnet34.pkl')
+    return learn_loaded
 
-If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).
+model = load_model()
 
-In the meantime, below is an example of what you can do with just a few lines of code:
-"""
+def predict_image(filename):
+    # Predict value for the uploaded file
+    prediction = model.predict(filename)
+    num = prediction[1].numpy().tolist()
+    st.write(f'Classified as {prediction[0]}')
+    st.write(f'Class number {num}')
+    st.write(f'With probability {prediction[2].numpy()[num]}')
 
-
-with st.echo(code_location='below'):
-    total_points = st.slider("Number of points in spiral", 1, 5000, 2000)
-    num_turns = st.slider("Number of turns in spiral", 1, 100, 9)
-
-    Point = namedtuple('Point', 'x y')
-    data = []
-
-    points_per_turn = total_points / num_turns
-
-    for curr_point_num in range(total_points):
-        curr_turn, i = divmod(curr_point_num, points_per_turn)
-        angle = (curr_turn + 1) * 2 * math.pi * i / points_per_turn
-        radius = curr_point_num / total_points
-        x = radius * math.cos(angle)
-        y = radius * math.sin(angle)
-        data.append(Point(x, y))
-
-    st.altair_chart(alt.Chart(pd.DataFrame(data), height=500, width=500)
-        .mark_circle(color='#0068c9', opacity=0.5)
-        .encode(x='x:Q', y='y:Q'))
+# Load files
+st.write("Upload image for classification")
+file = st.file_uploader("", type=["jpg","jpeg","png"])
+if file is None:
+    st.text("Please upload an image file")
+else:
+    image = Image.open(file)
+    st.image(image, use_column_width=True)
+    predict_image(file)
