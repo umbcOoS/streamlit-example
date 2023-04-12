@@ -3,10 +3,10 @@ WasteClassifier.py
 """
 
 # Install dependencies
-!pip uninstall fastai
-!pip uninstall fastai2
-!pip install fastai==2.5.3
-!pip install Streamlit
+pip uninstall fastai
+pip uninstall fastai2
+pip install fastai==2.5.3
+pip install Streamlit
 
 # Import libraries
 from fastai.vision.all import *
